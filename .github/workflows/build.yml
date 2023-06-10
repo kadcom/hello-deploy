@@ -43,8 +43,10 @@ jobs:
       - debug-build
       - test
     runs-on: ubuntu-latest
+    
     container:
       image: almalinux:9
+
     steps:
       - name: Install go toolset 
         run: dnf install -y go-toolset
@@ -60,7 +62,7 @@ jobs:
       - prod-build 
     runs-on: ubuntu-latest 
     container:
-      image: almalinux:9
+      image: almalinux:9 
     steps:
       - name: Install go toolset and rpmdevbuild 
         run: dnf install -y go-toolset rpmdevtools
@@ -87,7 +89,8 @@ jobs:
 
           tar -cvf - -C /tmp $FULLNAME | xz > $ARCHIVE_NAME
           cp $ARCHIVE_NAME $HOME/rpmbuild/SOURCES/
-
+          mkdir -p ./artifacts/ 
+          cp $ARCHIVE_NAME ./artifacts/
           echo "Cleaning up temp.."
 
           rm -rf /tmp/$FULLNAME
@@ -99,10 +102,20 @@ jobs:
         run: |
           rpmbuild -ba $HOME/rpmbuild/SPECS/hello.spec
 
-      - name: Listing Artifacts
+      - name: Listing & Copying Artifacts
         run: |
+          mkdir -p ./artifacts/
           echo $HOME
-          ls -la $HOME/rpmbuild/ && ls -la $HOME/rpmbuild/RPMS/ && ls -la $HOME/rpmbuild/RPMS/x86_64/
+          cp $HOME/rpmbuild/RPMS/x86_64/*.rpm ./artifacts/ 
+          cp $HOME/rpmbuild/SRPMS/*.rpm ./artifacts/
+
+      - name: Uploading Artifacts 
+        uses: actions/upload-artifact@v3
+        with:
+          name: rpm-Artifacts
+          path: |
+            ./artifacts/*.rpm
+            ./artifacts/*.tar.xz
 
 
 
