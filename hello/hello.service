@@ -1,0 +1,11 @@
+[Unit]
+Description=Hello Server
+After=network.target
+
+
+[Service]
+ExecStart=/usr/bin/hello 
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
