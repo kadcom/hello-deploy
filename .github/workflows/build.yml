@@ -105,6 +105,7 @@ jobs:
           export TZ="Asia/Jakarta"
           COMMIT_SHA=${{ github.sha }}
           BUILD_DATE=$(date +%Y%m%d%H%M)
+          BUILD_DATE_HUMAN=$(date) 
           SHORT_SHA=$(echo $COMMIT_SHA | cut -c 1-7)
           STAMP="${BUILD_DATE}.git.${SHORT_SHA}"
           echo "Stamp: $STAMP"
