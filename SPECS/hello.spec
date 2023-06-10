@@ -22,7 +22,7 @@ Sebuah server HTTP sederhana yang tidak melakukan apapun kecuali menampilkan: "H
 
 
 %build
-go build -ldflags="-linkmode=external -w -s" -v -o %{name}
+go build -ldflags="-linkmode=external -w -s -X main.gitCommit=%{_git_commit} -X main.buildDate=%{_build_date}" -v -o %{name}
 
 
 %install

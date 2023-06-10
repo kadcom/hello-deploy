@@ -36,6 +36,7 @@ func main() {
 
 	// Setup Handler
 	r.Get("/", helloWorldHandler)
+	r.Get("/version", versionHandler)
 
 	// Setup Server
 	listenPort := lookupEnvInt("HELLO_PORT", defaultPort)

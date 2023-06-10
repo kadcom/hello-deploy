@@ -104,10 +104,11 @@ jobs:
         run: |
           TZ="Asia/Jakarta"
           COMMIT_SHA=${{ github.sha }}
+          BUILD_DATE=$(date +%Y%m%d%H%M)
           SHORT_SHA=$(echo $COMMIT_SHA | cut -c 1-7)
-          STAMP="$(date +%Y%m%d%H%M).git.${SHORT_SHA}"
+          STAMP="${BUILD_DATE}.git.${SHORT_SHA}"
           echo "Stamp: $STAMP"
-          rpmbuild --define "_stamp .$STAMP" -ba $HOME/rpmbuild/SPECS/hello.spec
+          rpmbuild --define "_stamp .$STAMP" --define "_git_commit $COMMIT_SHA" --define "_build_date $BUILD_DATE" -ba $HOME/rpmbuild/SPECS/hello.spec
 
       - name: Listing & Copying Artifacts
         run: |
