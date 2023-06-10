@@ -42,7 +42,11 @@ func main() {
 	listenPort := lookupEnvInt("HELLO_PORT", defaultPort)
 	listenAddr := fmt.Sprintf(":%d", listenPort)
 
-	log.Info().Uint16("port", listenPort).Msg("Staring Server...")
+	log.Info().
+		Str("commit", ver.GitCommit).
+		Str("build_date", ver.BuildDate).
+		Uint16("port", listenPort).
+		Msg("Starting Server...")
 
 	err := http.ListenAndServe(listenAddr, r)
 	if err != nil {
