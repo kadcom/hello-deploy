@@ -97,6 +97,12 @@ jobs:
 
       - name: Building RPM
         run: |
-          rpmbuild -ba $HOME/rpmbuild/SPECS/hello.spec 
+          rpmbuild -ba $HOME/rpmbuild/SPECS/hello.spec
+
+      - name: Listing Artifacts
+        run: |
+          echo $HOME
+          ls -la $HOME/rpmbuild/ && ls -la $HOME/rpmbuild/RPMS/ && ls -la $HOME/rpmbuild/RPMS/x86_64/
+
 
 
