@@ -1,0 +1,21 @@
+name: Build and Test
+
+on: 
+  push:
+    branches:
+      - trunk
+
+jobs:
+  test:
+    runs-on: ubuntu-latest 
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setting Up Go 
+        uses: actions/setup-go@v4
+      - name: Showing Up Go Version 
+        run: go version 
+      - name: Running Test
+        run: |
+          cd hello
+          go test -v .
