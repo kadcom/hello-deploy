@@ -1,6 +1,6 @@
 Name:           hello
 Version:        0.1.1
-Release:        1%{?dist}
+Release:        1%{?dist}%{?_stamp}
 Summary:        Sebuah server HTTP sederhana
 
 License:        AGPLv3

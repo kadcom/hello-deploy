@@ -66,8 +66,10 @@ jobs:
     steps:
       - name: Install go toolset and rpmdevbuild 
         run: dnf install -y go-toolset rpmdevtools
+
       - name: Checkout Repository 
         uses: actions/checkout@v3
+
       - name: Setting Up RPM Dev Tools
         run: |
           rpmdev-setuptree
@@ -100,22 +102,58 @@ jobs:
 
       - name: Building RPM
         run: |
-          rpmbuild -ba $HOME/rpmbuild/SPECS/hello.spec
+          TZ="Asia/Jakarta"
+          COMMIT_SHA=${{ github.sha }}
+          SHORT_SHA=$(echo $COMMIT_SHA | cut -c 1-7)
+          STAMP="$(date +%Y%m%d%H%M).git.${SHORT_SHA}"
+          echo "Stamp: $STAMP"
+          rpmbuild --define "_stamp .$STAMP" -ba $HOME/rpmbuild/SPECS/hello.spec
 
       - name: Listing & Copying Artifacts
         run: |
-          mkdir -p ./artifacts/
+          mkdir -p ./artifacts/{sources,binary}
           echo $HOME
-          cp $HOME/rpmbuild/RPMS/x86_64/*.rpm ./artifacts/ 
-          cp $HOME/rpmbuild/SRPMS/*.rpm ./artifacts/
+          cp $HOME/rpmbuild/RPMS/x86_64/*.rpm ./artifacts/binary/ 
+          cp $HOME/rpmbuild/SRPMS/*.rpm ./artifacts/sources
 
-      - name: Uploading Artifacts 
+      - name: Uploading Binary Artifacts 
         uses: actions/upload-artifact@v3
         with:
-          name: rpm-Artifacts
+          name: deploy-artifacts
           path: |
-            ./artifacts/*.rpm
-            ./artifacts/*.tar.xz
+            ./artifacts/binary/*.rpm
+            ./artifacts/sources/*.rpm 
+            ./artifacts/sources/*.tar.xz
+
+  deploy:
+    needs:
+      - package 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifact from build job
+        uses: actions/download-artifact@v3
+        with:
+          name: deploy-artifacts
+
+      - name: Installing SSH Key
+        uses: kielabokkie/ssh-key-and-known-hosts-action@v1
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+          ssh-host: ${{ vars.DEPLOY_HOST }}
+
+      - name: List Deployment Files 
+        run: ls -al ./
+
+      - name: Deploy Using SSH 
+        run: |
+          echo "Deploying using ssh..."
+          ssh ${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }} "mkdir -p /tmp/installers/"
+          scp ./binary/*.rpm ${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}:/tmp/installers/
+          ssh ${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }} "rpm -Uvh /tmp/installers/*.rpm; systemctl enable hello; systemctl restart hello; rm -rf /tmp/installers"
+          
+
+
+
 
 
 
